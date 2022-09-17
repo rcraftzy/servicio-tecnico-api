@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"../database"
-	"../models"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gofiber/fiber"
-	"golang.org/x/crypto/bcrypt"
+	"errors"
 	"strconv"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gofiber/fiber/v2"
+	"github.com/roberto-carlos-tg/go-auht/database"
+	"github.com/roberto-carlos-tg/go-auht/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const SecretKey = "secret"
@@ -21,9 +23,12 @@ func Register(c *fiber.Ctx) error {
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 
+  var roleUser models.RoleUser
+
 	user := models.User{
 		Name:     data["name"],
 		Email:    data["email"],
+    RoleUserRefer:  roleUser.ID,
 		Password: password,
 	}
 
@@ -83,6 +88,14 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "success",
 	})
+}
+
+func FindUser(id int, user *models.User) error {
+	database.DB.Find(&user, "id = ?", id)
+	if user.Id == 0 {
+		return errors.New("Product does not exist")
+	}
+	return nil
 }
 
 func User(c *fiber.Ctx) error {

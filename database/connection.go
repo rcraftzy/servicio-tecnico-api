@@ -1,7 +1,7 @@
 package database
 
 import (
-	"../models"
+	"github.com/roberto-carlos-tg/go-auht/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -9,7 +9,7 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	connection, err := gorm.Open(mysql.Open("root:rootroot@/yt_go_auth"), &gorm.Config{})
+	connection, err := gorm.Open(mysql.Open("root:roca-01@/goauth"), &gorm.Config{})
 
 	if err != nil {
 		panic("could not connect to the database")
@@ -17,5 +17,5 @@ func Connect() {
 
 	DB = connection
 
-	connection.AutoMigrate(&models.User{})
+	connection.AutoMigrate(&models.User{}, &models.Ciudad{}, &models.Producto{}, &models.OrdenServicio{}, &models.Tecnico{}, &models.Provincia{}, &models.EstadoOrdenServicio{}, &models.Empresa{}, &models.DetalleOrdenServicio{}, &models.Cliente{}, &models.UserEmpresa{}, &models.RoleUser{})
 }

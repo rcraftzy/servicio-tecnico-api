@@ -110,7 +110,7 @@ func GetDetalleOrdenesServicio(c *fiber.Ctx) error {
     database.DB.Find(&producto, "id = ?", detalleOrdenServicio.ProductoRefer)
 
     var estadoOrdenServicio models.EstadoOrdenServicio
-    database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicio)
+    database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicioRefer)
 
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)

@@ -89,7 +89,7 @@ func UpdateCliente(c *fiber.Ctx) error {
 	}
 
 	type UpdateCliente struct {
-		Nombres         string `json:"nombre"`
+		Nombres         string `json:"nombres"`
     Apellidos       string `json:"apellidos"`
     Dni       string `json:"dni"`
     Direccion    string   `json:"direccion"`

@@ -91,7 +91,7 @@ func GetOrdenesServicio(c *fiber.Ctx) error {
 		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
 
     var estadoOrdenServicio models.EstadoOrdenServicio
-    database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicio)
+    database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicioRefer)
 
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)

@@ -21,8 +21,7 @@ type UserEmpresa struct {
 }
 
 func CreateResponseUser(user models.User) UserResponse {
-  return UserResponse{Id: user.Id, Name: user.Name, Email: user.Email}
-}
+  return UserResponse{Id: user.Id, Name: user.Name, Email: user.Email} }
 
 func CreateResponseUserEmpresa(userEmpresa models.UserEmpresa, user UserResponse,empresa Empresa) UserEmpresa {
   return UserEmpresa{ID: userEmpresa.ID, User: user, Empresa: empresa}
@@ -101,40 +100,41 @@ func FindUserEmpresa(id int, ordenServicio *models.OrdenServicio) error {
 	}
 	return nil
 }
-
+func FindUserEmpresaUser(id int, userEmpresa *models.UserEmpresa) error {
+	database.DB.Find(&userEmpresa, "id = ?", id)
+	if userEmpresa.UserRefer == 0 {
+		return errors.New("Order does not exist")
+	}
+	return nil
+}
 func GetUserEmpresa(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
-	var ordenServicio models.OrdenServicio
+	var userEmpresa models.UserEmpresa
 
 	if err != nil {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-	if err := FindOrdenServicio(id, &ordenServicio); err != nil {
+	if err := FindUserEmpresaUser(id, &userEmpresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
+	var user models.User
+	database.DB.First(&user, userEmpresa.UserRefer)
+
 	var empresa models.Empresa
-	database.DB.First(&empresa, ordenServicio.EmpresaRefer)
+	database.DB.First(&empresa, userEmpresa.EmpresaRefer)
   
-	var ciudad models.Ciudad
+  var ciudad models.Ciudad
 	database.DB.First(&ciudad, empresa.CiudadRefer)
 
 	var provincia models.Provincia
 	database.DB.First(&provincia, ciudad.ProvinciaRefer)
 
-  var tecnico models.Tecnico
-	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
-
-  var estadoOrdenServicio models.EstadoOrdenServicio
-  database.DB.First(&estadoOrdenServicio, ordenServicio.EstadoOrdenServicioRefer)
-
-	responseProvincia := CreateResponseProvincia(provincia)
-	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+  responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
-  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+	responseUser := CreateResponseUser(user)
+	responseUserEmpresa := CreateResponseUserEmpresa(userEmpresa, responseUser, responseEmpresa)
 
-	return c.Status(200).JSON(responseOrdenServicio)
+	return c.Status(200).JSON(responseUserEmpresa)
 }

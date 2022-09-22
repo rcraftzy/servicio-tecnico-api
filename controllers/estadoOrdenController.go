@@ -11,11 +11,12 @@ import (
 type EstadoOrdenServicio struct {
   ID           int `json:"id" gorm:"primaryKey"`
   State       string `json:"state"`
+  Color       string `json:"color"`
   Empresa      Empresa `json:"empresa"`
 }
 
 func CreateResponseEstadoOrdenServicio(estadoOrdenServicioModel models.EstadoOrdenServicio, empresa Empresa) EstadoOrdenServicio {
-  return EstadoOrdenServicio {ID: estadoOrdenServicioModel.ID ,State: estadoOrdenServicioModel.State ,Empresa: empresa}
+  return EstadoOrdenServicio {ID: estadoOrdenServicioModel.ID ,State: estadoOrdenServicioModel.State ,Color: estadoOrdenServicioModel.Color, Empresa: empresa}
 }
 
 func CreateEstadoOrdenServicio(c *fiber.Ctx) error {
@@ -77,7 +78,7 @@ func GetEstadosOrdenServicio(c *fiber.Ctx) error {
 func FindEstadoOrdenServicio(id int, estadoOrdenServicio *models.EstadoOrdenServicio) error {
 	database.DB.Find(&estadoOrdenServicio, "id = ?", id)
 	if estadoOrdenServicio.ID == 0 {
-		return errors.New("Order does not exist")
+		return errors.New("Estado does not exist")
 	}
 	return nil
 }
@@ -109,4 +110,78 @@ func GetEstadoOrdenServicio(c *fiber.Ctx) error {
   responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
 
 	return c.Status(200).JSON(responseEstadoOrdenServicio)
+}
+
+func UpdateEstadoOrdenServicio(c *fiber.Ctx) error {
+  id, err := c.ParamsInt("id")
+
+	var estado models.EstadoOrdenServicio
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+  if err := FindEstadoOrdenServicio(id, &estado); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  type UpdateEmpresa struct {
+    State           string `json:"state"`
+    Color           string `json:"color"`
+    EmpresaRefer    int `json:"empresa_id"`
+  }
+
+	var updateData UpdateEmpresa
+
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(500).JSON(err.Error())
+	}
+
+  estado.State = updateData.State
+  estado.Color = updateData.Color
+  estado.EmpresaRefer = updateData.EmpresaRefer
+
+	var empresa models.Empresa
+	if err := findEmpresa(estado.EmpresaRefer, &empresa); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  var ciudad models.Ciudad
+	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  var provincia models.Provincia
+	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+	database.DB.Save(&estado)
+
+  responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+	responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estado, responseEmpresa)
+
+	return c.Status(200).JSON(responseEstadoOrdenServicio)
+}
+
+func DeleteEstadoOrdenServicio(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	var estado models.EstadoOrdenServicio
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	if err := FindEstadoOrdenServicio(id, &estado); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+	if err := database.DB.Delete(&estado).Error; err != nil {
+		return c.Status(404).JSON(err.Error())
+	}
+
+	return c.Status(200).SendString("Successfully Delteted product")
 }

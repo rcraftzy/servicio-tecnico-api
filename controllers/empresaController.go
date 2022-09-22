@@ -100,3 +100,59 @@ func GetEmpresa(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(responseEmpresa)
 }
+
+func UpdateEmpresa(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	var empresa models.Empresa
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+  if err := findEmpresa(id, &empresa); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  type UpdateEmpresa struct {
+    Ruc          string `json:"ruc"`
+    Nombre       string `json:"nombre"`
+    Direccion    string `json:"direccion"`
+    CiudadRefer    int   `json:"ciudad_id"`
+    Telefono   string `json:"telefono"`
+    Email   string `json:"email"`
+    PorcentajeIVA   float64 `json:"porcentajeIVA"`
+  }
+
+	var updateData UpdateEmpresa
+
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(500).JSON(err.Error())
+	}
+
+  empresa.Ruc = updateData.Ruc
+  empresa.Nombre = updateData.Nombre
+  empresa.Direccion = updateData.Direccion
+  empresa.CiudadRefer = updateData.CiudadRefer
+  empresa.Telefono = updateData.Telefono
+  empresa.Email = updateData.Email
+  empresa.PorcentajeIVA = updateData.PorcentajeIVA
+
+  var ciudad models.Ciudad
+	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  var provincia models.Provincia
+	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+	database.DB.Save(&empresa)
+
+  responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+
+	return c.Status(200).JSON(responseEmpresa)
+}

@@ -27,6 +27,7 @@ func Setup(app *fiber.App) {
   app.Get("/api/v1.0/empresa", controllers.GetEmpresas)
   app.Get("/api/v1.0/empresa/:id", controllers.GetEmpresa)
   app.Post("/api/v1.0/empresa", controllers.CreateEmpresa)
+  app.Put("/api/v1.0/empresa/:id", controllers.UpdateEmpresa)
   // Tecnico
   app.Get("/api/v1.0/tecnico", controllers.GetTecnicos)
   app.Get("/api/v1.0/tecnico/:id", controllers.GetTecnico)
@@ -44,6 +45,8 @@ func Setup(app *fiber.App) {
   app.Get("/api/v1.0/estadoordenservicio", controllers.GetEstadosOrdenServicio)
   app.Post("/api/v1.0/estadoordenservicio", controllers.CreateEstadoOrdenServicio)
   app.Get("/api/v1.0/estadoordenservicio/:id", controllers.GetEstadoOrdenServicio)
+  app.Put("/api/v1.0/estadoordenservicio/:id", controllers.UpdateEstadoOrdenServicio)
+  app.Delete("/api/v1.0/estadoordenservicio/:id", controllers.DeleteEstadoOrdenServicio)
   // Orden Servicio
   app.Get("/api/v1.0/ordenServicio", controllers.GetOrdenesServicio)
   app.Post("/api/v1.0/ordenServicio", controllers.CreateOrdenServicio)
@@ -54,5 +57,16 @@ func Setup(app *fiber.App) {
   app.Get("/api/v1.0/detalleordenServicio/:id", controllers.GetDetalleOrdenServicio)
   // Empresa User
   app.Get("/api/v1.0/empresaUser", controllers.GetUsersEmpresas)
+  app.Get("/api/v1.0/empresaUser/:id", controllers.GetUserEmpresa)
   app.Post("/api/v1.0/empresaUser", controllers.CreateUserEmpresa)
+  // Role
+  app.Get("/api/v1.0/role", controllers.GetRoles)
+  app.Get("/api/v1.0/role/:id", controllers.GetRole)
+  app.Post("/api/v1.0/role", controllers.CreateRole)
+  app.Put("/api/v1.0/role/:id", controllers.UpdateRole)
+  // Role User
+  app.Get("/api/v1.0/roleUser", controllers.GetRolesUser)
+  app.Get("/api/v1.0/roleUser/:id", controllers.GetRoleUser)
+  app.Post("/api/v1.0/roleUser", controllers.CreateRoleUser)
+  app.Put("/api/v1.0/roleUser/:id", controllers.UpdateRoleUser)
 }

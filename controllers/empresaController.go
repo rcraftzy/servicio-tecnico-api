@@ -92,7 +92,7 @@ func GetEmpresa(c *fiber.Ctx) error {
 	database.DB.First(&ciudad, empresa.CiudadRefer)
 
 	var provincia models.Provincia
-	database.DB.First(&empresa, ciudad.ProvinciaRefer)
+	database.DB.First(&provincia, ciudad.ProvinciaRefer)
 
   responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)

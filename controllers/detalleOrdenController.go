@@ -175,3 +175,55 @@ func GetDetalleOrdenServicio(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(responseDetalleOrdenServicio)
 }
+
+func FindDetalleOrdenServicioByOrder(orden_servicio_id int, detalleOrdenServicio *models.DetalleOrdenServicio) error {
+  database.DB.Find(&detalleOrdenServicio, "orden_servicio_refer = ?", orden_servicio_id)
+	if detalleOrdenServicio.OrdenServicioRefer == 0 {
+		return errors.New("Order does not exist")
+	}
+	return nil
+}
+
+func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
+	orden_servicio_id, err := c.ParamsInt("orden_servicio_id")
+	var detalleOrdenServicio models.DetalleOrdenServicio
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :idOrden is an integer")
+	}
+
+	if err := FindDetalleOrdenServicioByOrder(orden_servicio_id, &detalleOrdenServicio); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+  var ordenServicio models.OrdenServicio
+  database.DB.First(&ordenServicio, detalleOrdenServicio.OrdenServicio)
+
+	var empresa models.Empresa
+	database.DB.First(&empresa, ordenServicio.EmpresaRefer)
+  
+	var ciudad models.Ciudad
+	database.DB.First(&ciudad, empresa.CiudadRefer)
+
+	var provincia models.Provincia
+	database.DB.First(&provincia, ciudad.ProvinciaRefer)
+
+  var tecnico models.Tecnico
+	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
+
+  var producto models.Producto
+	database.DB.First(&producto, detalleOrdenServicio.ProductoRefer)
+
+  var estadoOrdenServicio models.EstadoOrdenServicio
+  database.DB.First(&estadoOrdenServicio, detalleOrdenServicio.EstadoOrdenServicioRefer)
+
+	responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+  responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+  responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
+
+	return c.Status(200).JSON(responseDetalleOrdenServicio)
+}

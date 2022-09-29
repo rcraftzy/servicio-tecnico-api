@@ -36,6 +36,7 @@ func Setup(app *fiber.App) {
   app.Get("/api/v1.0/producto", controllers.GetProductos)
   app.Get("/api/v1.0/producto/:id", controllers.GetProducto)
   app.Post("/api/v1.0/producto", controllers.CreateProducto)
+  app.Put("/api/v1.0/producto/:id", controllers.UpdateProducto)
   // Cliente 
   app.Get("/api/v1.0/clientes", controllers.GetClientes)
   app.Post("/api/v1.0/clientes", controllers.CreateCliente)
@@ -51,10 +52,12 @@ func Setup(app *fiber.App) {
   app.Get("/api/v1.0/ordenServicio", controllers.GetOrdenesServicio)
   app.Post("/api/v1.0/ordenServicio", controllers.CreateOrdenServicio)
   app.Get("/api/v1.0/ordenServicio/:id", controllers.GetOrdenServicio)
+  app.Put("/api/v1.0/ordenServicio/:id", controllers.UpdatetOrdenServicio)
   // Detalle Orden Servicio
   app.Get("/api/v1.0/detalleordenServicio", controllers.GetDetalleOrdenesServicio)
   app.Post("/api/v1.0/detalleordenServicio", controllers.CreateDetalleOrdenesServicio)
-  app.Get("/api/v1.0/detalleordenServicio/:id", controllers.GetDetalleOrdenServicio)
+  // app.Get("/api/v1.0/detalleordenServicio/:id", controllers.GetDetalleOrdenServicio)
+  app.Get("/api/v1.0/detalleordenServicio/:orden_servicio_id", controllers.GetDetalleOrdenServicioByOrder)
   // Empresa User
   app.Get("/api/v1.0/empresaUser", controllers.GetUsersEmpresas)
   app.Get("/api/v1.0/empresaUser/:id", controllers.GetUserEmpresa)

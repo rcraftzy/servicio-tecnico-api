@@ -117,3 +117,67 @@ func GetProducto(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(responseProducto)
 }
+
+func UpdateProducto(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	var producto models.Producto
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	if err := FindProducto(id, &producto); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  type UpdateProducto struct {
+    Codigo       string `json:"codigo"`
+    Nombre       string `json:"nombre"`
+    PrecioVenta       float64 `json:"precioVenta"`
+    StockMin       float64 `json:"stockMin"`
+    StockMax       float64 `json:"stockMax"`
+    Stock       float64 `json:"stock"`
+    ControlaStock bool `json:"controlaStock"`
+    AplicaIVA bool `json:"aplicaIva"`
+    EmpresaRefer int `json:"empresa_id"`
+  }
+
+	var updateData UpdateProducto
+
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(500).JSON(err.Error())
+	}
+
+	producto.Codigo = updateData.Codigo
+	producto.Nombre = updateData.Nombre
+	producto.PrecioVenta = updateData.PrecioVenta
+	producto.StockMin = updateData.StockMin
+	producto.StockMax = updateData.StockMax
+	producto.Stock = updateData.Stock
+	producto.ControlaStock = updateData.ControlaStock
+	producto.AplicaIVA = updateData.AplicaIVA
+	producto.EmpresaRefer = updateData.EmpresaRefer
+
+  var empresa models.Empresa
+	if err := findEmpresa(producto.EmpresaRefer, &empresa); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  var ciudad models.Ciudad
+	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  var provincia models.Provincia
+	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	database.DB.Save(&producto)
+
+  responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+	return c.Status(200).JSON(responseProducto)
+}

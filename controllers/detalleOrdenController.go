@@ -186,44 +186,50 @@ func FindDetalleOrdenServicioByOrder(orden_servicio_id int, detalleOrdenServicio
 
 func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
 	orden_servicio_id, err := c.ParamsInt("orden_servicio_id")
-	var detalleOrdenServicio models.DetalleOrdenServicio
 
-	if err != nil {
+  detalleOrdenesServicio := []models.DetalleOrdenServicio{}
+	database.DB.Find(&detalleOrdenesServicio)
+	responseDetalleOrdenesServicio := []DetalleOrdenServicio{}
+
+	for _, detalleOrdenServicio := range detalleOrdenesServicio {
+
+    if err != nil {
 		return c.Status(400).JSON("Please ensure that :idOrden is an integer")
 	}
 
 	if err := FindDetalleOrdenServicioByOrder(orden_servicio_id, &detalleOrdenServicio); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
-  var ordenServicio models.OrdenServicio
-  database.DB.First(&ordenServicio, detalleOrdenServicio.OrdenServicio)
 
-	var empresa models.Empresa
-	database.DB.First(&empresa, ordenServicio.EmpresaRefer)
-  
-	var ciudad models.Ciudad
-	database.DB.First(&ciudad, empresa.CiudadRefer)
+    var ordenServicio models.OrdenServicio
+    database.DB.Find(&ordenServicio, "id = ?", detalleOrdenServicio.OrdenServicioRefer)
 
-	var provincia models.Provincia
-	database.DB.First(&provincia, ciudad.ProvinciaRefer)
+    var empresa models.Empresa
+		database.DB.Find(&empresa, "id = ?", ordenServicio.EmpresaRefer)
 
-  var tecnico models.Tecnico
-	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
+    var ciudad models.Ciudad
+		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
 
-  var producto models.Producto
-	database.DB.First(&producto, detalleOrdenServicio.ProductoRefer)
+		var provincia models.Provincia
+		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
 
-  var estadoOrdenServicio models.EstadoOrdenServicio
-  database.DB.First(&estadoOrdenServicio, detalleOrdenServicio.EstadoOrdenServicioRefer)
+    var tecnico models.Tecnico
+		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
 
-	responseProvincia := CreateResponseProvincia(provincia)
-	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
-	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
-  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-  responseProducto := CreateResponseProducto(producto, responseEmpresa)
-  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
-  responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
+    var producto models.Producto
+    database.DB.Find(&producto, "id = ?", detalleOrdenServicio.ProductoRefer)
 
-	return c.Status(200).JSON(responseDetalleOrdenServicio)
+    var estadoOrdenServicio models.EstadoOrdenServicio
+    database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicioRefer)
+
+		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
+		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+		responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+    responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+    responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+    responseProducto := CreateResponseProducto(producto, responseEmpresa)
+    responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
+    responseDetalleOrdenesServicio = append(responseDetalleOrdenesServicio, responseDetalleOrdenServicio)
+	}
+	return c.Status(200).JSON(responseDetalleOrdenesServicio)
 }

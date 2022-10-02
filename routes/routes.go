@@ -45,7 +45,8 @@ func Setup(app *fiber.App) {
   // Estado Orden Servicio
   app.Get("/api/v1.0/estadoordenservicio", controllers.GetEstadosOrdenServicio)
   app.Post("/api/v1.0/estadoordenservicio", controllers.CreateEstadoOrdenServicio)
-  app.Get("/api/v1.0/estadoordenservicio/:id", controllers.GetEstadoOrdenServicio)
+  // app.Get("/api/v1.0/estadoordenservicio/:id", controllers.GetEstadoOrdenServicio)
+  app.Get("/api/v1.0/estadoordenservicio/:id", controllers.GetEstadoOrdenServicioByEmpresa)
   app.Put("/api/v1.0/estadoordenservicio/:id", controllers.UpdateEstadoOrdenServicio)
   app.Delete("/api/v1.0/estadoordenservicio/:id", controllers.DeleteEstadoOrdenServicio)
   // Orden Servicio

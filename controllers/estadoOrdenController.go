@@ -112,6 +112,48 @@ func GetEstadoOrdenServicio(c *fiber.Ctx) error {
 	return c.Status(200).JSON(responseEstadoOrdenServicio)
 }
 
+func FindEstadoOrdenServicioByEmpresa(empresa_id int, estadoOrdenServicio *models.EstadoOrdenServicio) error {
+  database.DB.Find(&estadoOrdenServicio, "empresa_refer = ?", empresa_id)
+	if estadoOrdenServicio.EmpresaRefer == 0 {
+		return errors.New("Empresa does not exist")
+	}
+	return nil
+}
+
+func GetEstadoOrdenServicioByEmpresa(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+  estadosOrdenServicio := []models.EstadoOrdenServicio{}
+	database.DB.Find(&estadosOrdenServicio)
+	responseEstadosOrdenServicio := []EstadoOrdenServicio{}
+
+	for _, estadoOrdenServicio := range estadosOrdenServicio {
+
+    if err != nil {
+      return c.Status(400).JSON("Please ensure that :id is an integer")
+    }
+
+    if err := FindEstadoOrdenServicioByEmpresa(id, &estadoOrdenServicio); err != nil {
+      return c.Status(400).JSON(err.Error())
+    }
+
+    var empresa models.Empresa
+		database.DB.Find(&empresa, "id = ?", estadoOrdenServicio.EmpresaRefer)
+
+    var ciudad models.Ciudad
+		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
+
+		var provincia models.Provincia
+		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
+
+    responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
+		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+    responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+    responseEstadosOrdenServicio = append(responseEstadosOrdenServicio, responseEstadoOrdenServicio)
+	}
+ 	return c.Status(200).JSON(responseEstadosOrdenServicio)
+}
+
 func UpdateEstadoOrdenServicio(c *fiber.Ctx) error {
   id, err := c.ParamsInt("id")
 

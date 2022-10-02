@@ -10,6 +10,8 @@ type OrdenServicio struct {
   EstadoOrdenServicio EstadoOrdenServicio `gorm:"foreignKey:EstadoOrdenServicioRefer"`
   SubTotalConIVA    float64   `json:"sub_total_con_IVA"`
   SubTotalSinIVA    float64   `json:"sub_total_sin_IVA"`
+  ClienteRefer int `json:"cliente_id"`
+  Cliente Cliente `gorm:"foreignKey:ClienteRefer"`
   TecnicoRefer int `json:"tecnico_id"`
   Tecnico Tecnico `gorm:"foreignKey:TecnicoRefer"`
   Descuento    float64   `json:"descuento"`

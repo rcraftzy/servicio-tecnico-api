@@ -45,6 +45,11 @@ func CreateDetalleOrdenesServicio(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
+  var cliente models.Cliente
+	if err := FindCliente(ordenServicio.ClienteRefer, &cliente); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
   var empresa models.Empresa
 	if err := findEmpresa(ordenServicio.EmpresaRefer, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
@@ -76,8 +81,9 @@ func CreateDetalleOrdenesServicio(c *fiber.Ctx) error {
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
   responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
   responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+  responseCliente := CreateResponseCliente(cliente)
   responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico, responseCliente)
   responseProducto := CreateResponseProducto(producto, responseEmpresa)
   responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
 
@@ -106,17 +112,20 @@ func GetDetalleOrdenesServicio(c *fiber.Ctx) error {
     var tecnico models.Tecnico
 		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
 
+    var cliente models.Cliente
+		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
+
     var producto models.Producto
     database.DB.Find(&producto, "id = ?", detalleOrdenServicio.ProductoRefer)
 
     var estadoOrdenServicio models.EstadoOrdenServicio
     database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicioRefer)
-
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 		responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+    responseCliente := CreateResponseCliente(cliente)
     responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-    responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+    responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico, responseCliente)
     responseProducto := CreateResponseProducto(producto, responseEmpresa)
     responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
     responseDetalleOrdenesServicio = append(responseDetalleOrdenesServicio, responseDetalleOrdenServicio)
@@ -158,6 +167,9 @@ func GetDetalleOrdenServicio(c *fiber.Ctx) error {
   var tecnico models.Tecnico
 	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
 
+  var cliente models.Cliente
+	database.DB.First(&tecnico, ordenServicio.ClienteRefer)
+
   var producto models.Producto
 	database.DB.First(&producto, detalleOrdenServicio.ProductoRefer)
 
@@ -168,9 +180,10 @@ func GetDetalleOrdenServicio(c *fiber.Ctx) error {
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
   responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+  responseCliente := CreateResponseCliente(cliente)
   responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
   responseProducto := CreateResponseProducto(producto, responseEmpresa)
-  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico, responseCliente)
   responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
 
 	return c.Status(200).JSON(responseDetalleOrdenServicio)
@@ -216,6 +229,10 @@ func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
     var tecnico models.Tecnico
 		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
 
+    var cliente models.Cliente
+    database.DB.Find(&tecnico, "id = ?", ordenServicio.ClienteRefer)
+
+
     var producto models.Producto
     database.DB.Find(&producto, "id = ?", detalleOrdenServicio.ProductoRefer)
 
@@ -225,8 +242,9 @@ func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 		responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+    responseCliente := CreateResponseCliente(cliente)
     responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-    responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico)
+    responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico, responseCliente)
     responseProducto := CreateResponseProducto(producto, responseEmpresa)
     responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalleOrdenServicio, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
     responseDetalleOrdenesServicio = append(responseDetalleOrdenesServicio, responseDetalleOrdenServicio)

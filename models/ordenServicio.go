@@ -18,4 +18,7 @@ type OrdenServicio struct {
   ValorIVA    float64   `json:"valor_IVA"`
   Total    float64   `json:"total"`
   Observaciones    string   `json:"observaciones"`
+  DiagnosticoRecepcion    string   `json:"diagnostico_recepcion"`
+  DiagnosticoTecnico    string   `json:"diagnostico_tecnico"`
+
 }

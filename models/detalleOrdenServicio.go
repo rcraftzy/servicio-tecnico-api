@@ -13,8 +13,6 @@ type DetalleOrdenServicio struct {
   PorcentajeIVA    float64   `json:"porcentaje_IVA"`
   ValorIVA    float64   `json:"valor_IVA"`
   Total    float64   `json:"total"`
-  DiagnosticoRecepcion    string   `json:"diagnostico_recepcion"`
-  DiagnosticoTecnico    string   `json:"diagnostico_tecnico"`
   EstadoOrdenServicioRefer    int   `json:"estado_orden_servicio_id"`
   EstadoOrdenServicio EstadoOrdenServicio `gorm:"foreignKey:EstadoOrdenServicioRefer"`
 }

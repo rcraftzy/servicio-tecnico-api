@@ -22,10 +22,12 @@ type OrdenServicio struct {
   ValorIVA    float64   `json:"valor_IVA"`
   Total    float64   `json:"total"`
   Observaciones    string   `json:"observaciones"`
+  DiagnosticoRecepcion    string   `json:"diagnostico_recepcion"`
+  DiagnosticoTecnico    string   `json:"diagnostico_tecnico"`
 }
 
 func CreateResponseOrdenServicio(ordenServicioModel models.OrdenServicio, empresa Empresa, estadoOrdenServicio EstadoOrdenServicio, tecnico Tecnico, cliente Cliente) OrdenServicio {
-  return OrdenServicio{ID: ordenServicioModel.ID, NumOrden: ordenServicioModel.NumOrden ,Empresa: empresa, FechaEmision: ordenServicioModel.FechaEmision, EstadoOrdenServicio: estadoOrdenServicio, SubTotalConIVA: ordenServicioModel.SubTotalConIVA, SubTotalSinIVA: ordenServicioModel.SubTotalSinIVA, Tecnico: tecnico, Cliente: cliente, Descuento: ordenServicioModel.Descuento, ValorIVA: ordenServicioModel.ValorIVA, Total: ordenServicioModel.Total, Observaciones: ordenServicioModel.Observaciones}
+  return OrdenServicio{ID: ordenServicioModel.ID, NumOrden: ordenServicioModel.NumOrden ,Empresa: empresa, FechaEmision: ordenServicioModel.FechaEmision, EstadoOrdenServicio: estadoOrdenServicio, SubTotalConIVA: ordenServicioModel.SubTotalConIVA, SubTotalSinIVA: ordenServicioModel.SubTotalSinIVA, Tecnico: tecnico, Cliente: cliente, Descuento: ordenServicioModel.Descuento, ValorIVA: ordenServicioModel.ValorIVA, Total: ordenServicioModel.Total, Observaciones: ordenServicioModel.Observaciones, DiagnosticoRecepcion: ordenServicioModel.DiagnosticoRecepcion, DiagnosticoTecnico: ordenServicioModel.DiagnosticoTecnico}
 }
 
 func CreateOrdenServicio(c *fiber.Ctx) error {
@@ -189,6 +191,8 @@ func UpdatetOrdenServicio (c *fiber.Ctx) error {
     ValorIVA    float64   `json:"valor_IVA"`
     Total    float64   `json:"total"`
     Observaciones    string   `json:"observaciones"`
+    DiagnosticoRecepcion    string   `json:"diagnostico_recepcion"`
+    DiagnosticoTecnico    string   `json:"diagnostico_tecnico"`
 	}
 
 	var updateData UpdatetOrdenServicio
@@ -209,6 +213,8 @@ func UpdatetOrdenServicio (c *fiber.Ctx) error {
   ordenServicio.ValorIVA = updateData.ValorIVA
   ordenServicio.Total = updateData.Total
   ordenServicio.Observaciones = updateData.Observaciones
+  ordenServicio.DiagnosticoRecepcion = updateData.DiagnosticoRecepcion
+  ordenServicio.DiagnosticoTecnico = updateData.DiagnosticoTecnico
 
   var empresa models.Empresa
 	database.DB.First(&empresa, ordenServicio.EmpresaRefer)

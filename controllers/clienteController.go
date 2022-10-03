@@ -52,7 +52,7 @@ func GetClientes(c *fiber.Ctx) error {
 func FindCliente(id int, cliente *models.Cliente) error {
 	database.DB.Find(&cliente, "id = ?", id)
 	if cliente.ID == 0 {
-		return errors.New("Product does not exist")
+		return errors.New("cliente does not exist")
 	}
 	return nil
 }

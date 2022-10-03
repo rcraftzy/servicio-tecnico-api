@@ -19,13 +19,11 @@ type DetalleOrdenServicio struct {
   PorcentajeIVA    float64   `json:"porcentaje_IVA"`
   ValorIVA    float64   `json:"valor_IVA"`
   Total    float64   `json:"total"`
-  DiagnosticoRecepcion    string   `json:"diagnostico_recepcion"`
-  DiagnosticoTecnico    string   `json:"diagnostico_tecnico"`
   EstadoOrdenServicio EstadoOrdenServicio `json:"estado_orden_servicio"`
 }
 
 func CreateResponseDetalleOrdenServicio(detalleOrdenServicioModel models.DetalleOrdenServicio, ordenServicio OrdenServicio, producto Producto, estadoOrdenServicio EstadoOrdenServicio) DetalleOrdenServicio {
-  return DetalleOrdenServicio{ID: detalleOrdenServicioModel.ID, OrdenServicio: ordenServicio, Cantidad: detalleOrdenServicioModel.Cantidad, Producto: producto, Descripcion: detalleOrdenServicioModel.Descripcion, PrecioUnitario: detalleOrdenServicioModel.PrecioUnitario, Descuento: detalleOrdenServicioModel.Descuento, PorcentajeIVA: detalleOrdenServicioModel.PorcentajeIVA, ValorIVA: detalleOrdenServicioModel.ValorIVA, Total: detalleOrdenServicioModel.Total, DiagnosticoRecepcion: detalleOrdenServicioModel.DiagnosticoRecepcion, DiagnosticoTecnico: detalleOrdenServicioModel.DiagnosticoTecnico, EstadoOrdenServicio: estadoOrdenServicio}
+  return DetalleOrdenServicio{ID: detalleOrdenServicioModel.ID, OrdenServicio: ordenServicio, Cantidad: detalleOrdenServicioModel.Cantidad, Producto: producto, Descripcion: detalleOrdenServicioModel.Descripcion, PrecioUnitario: detalleOrdenServicioModel.PrecioUnitario, Descuento: detalleOrdenServicioModel.Descuento, PorcentajeIVA: detalleOrdenServicioModel.PorcentajeIVA, ValorIVA: detalleOrdenServicioModel.ValorIVA, Total: detalleOrdenServicioModel.Total, EstadoOrdenServicio: estadoOrdenServicio}
 }
 
 func CreateDetalleOrdenesServicio(c *fiber.Ctx) error {
@@ -40,13 +38,13 @@ func CreateDetalleOrdenesServicio(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var tecnico models.Tecnico
-	if err := FindTecnico(ordenServicio.TecnicoRefer, &tecnico); err != nil {
+  var cliente models.Cliente
+  if err := FindCliente(ordenServicio.ClienteRefer, &cliente); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var cliente models.Cliente
-	if err := FindCliente(ordenServicio.ClienteRefer, &cliente); err != nil {
+  var tecnico models.Tecnico
+	if err := FindTecnico(ordenServicio.TecnicoRefer, &tecnico); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
@@ -120,6 +118,7 @@ func GetDetalleOrdenesServicio(c *fiber.Ctx) error {
 
     var estadoOrdenServicio models.EstadoOrdenServicio
     database.DB.Find(&estadoOrdenServicio, "id = ?", ordenServicio.EstadoOrdenServicioRefer)
+
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 		responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
@@ -168,7 +167,7 @@ func GetDetalleOrdenServicio(c *fiber.Ctx) error {
 	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
 
   var cliente models.Cliente
-	database.DB.First(&tecnico, ordenServicio.ClienteRefer)
+	database.DB.First(&cliente, ordenServicio.ClienteRefer)
 
   var producto models.Producto
 	database.DB.First(&producto, detalleOrdenServicio.ProductoRefer)
@@ -230,8 +229,7 @@ func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
 		database.DB.Find(&tecnico, "id = ?", ordenServicio.TecnicoRefer)
 
     var cliente models.Cliente
-    database.DB.Find(&tecnico, "id = ?", ordenServicio.ClienteRefer)
-
+    database.DB.Find(&cliente, "id = ?", ordenServicio.ClienteRefer)
 
     var producto models.Producto
     database.DB.Find(&producto, "id = ?", detalleOrdenServicio.ProductoRefer)

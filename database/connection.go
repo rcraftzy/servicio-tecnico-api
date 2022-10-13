@@ -1,6 +1,8 @@
 package database
 
 import (
+	"os"
+
 	"github.com/roberto-carlos-tg/go-auht/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,8 +11,7 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	connection, err := gorm.Open(mysql.Open("root:roca-01@/goauth"), &gorm.Config{})
-
+  connection, err := gorm.Open(mysql.Open(os.Getenv("DATABASE_USER")+":"+os.Getenv("DATABASE_PASSWORD")+"@/"+os.Getenv("DATABASE")), &gorm.Config{})
 	if err != nil {
 		panic("could not connect to the database")
 	}

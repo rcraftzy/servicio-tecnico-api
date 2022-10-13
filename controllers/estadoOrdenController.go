@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,14 +9,14 @@ import (
 )
 
 type EstadoOrdenServicio struct {
-  ID           int `json:"id" gorm:"primaryKey"`
-  State       string `json:"state"`
-  Color       string `json:"color"`
-  Empresa      Empresa `json:"empresa"`
+	ID      int     `json:"id" gorm:"primaryKey"`
+	State   string  `json:"state"`
+	Color   string  `json:"color"`
+	Empresa Empresa `json:"empresa"`
 }
 
 func CreateResponseEstadoOrdenServicio(estadoOrdenServicioModel models.EstadoOrdenServicio, empresa Empresa) EstadoOrdenServicio {
-  return EstadoOrdenServicio {ID: estadoOrdenServicioModel.ID ,State: estadoOrdenServicioModel.State ,Color: estadoOrdenServicioModel.Color, Empresa: empresa}
+	return EstadoOrdenServicio{ID: estadoOrdenServicioModel.ID, State: estadoOrdenServicioModel.State, Color: estadoOrdenServicioModel.Color, Empresa: empresa}
 }
 
 func CreateEstadoOrdenServicio(c *fiber.Ctx) error {
@@ -26,27 +26,27 @@ func CreateEstadoOrdenServicio(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var empresa models.Empresa
+	var empresa models.Empresa
 	if err := findEmpresa(estadoOrdenServicio.EmpresaRefer, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var ciudad models.Ciudad
+	var ciudad models.Ciudad
 	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	database.DB.Create(&estadoOrdenServicio)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
-  responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+	responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
 
 	return c.Status(200).JSON(responseEstadoOrdenServicio)
 }
@@ -58,19 +58,19 @@ func GetEstadosOrdenServicio(c *fiber.Ctx) error {
 
 	for _, estadoOrdenServicio := range estadosOrdenServicio {
 
-    var empresa models.Empresa
+		var empresa models.Empresa
 		database.DB.Find(&empresa, "id = ?", estadoOrdenServicio.EmpresaRefer)
 
-    var ciudad models.Ciudad
+		var ciudad models.Ciudad
 		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
 
 		var provincia models.Provincia
 		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
 
-    responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
+		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-    responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-    responseEstadosOrdenServicio = append(responseEstadosOrdenServicio, responseEstadoOrdenServicio)
+		responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+		responseEstadosOrdenServicio = append(responseEstadosOrdenServicio, responseEstadoOrdenServicio)
 	}
 	return c.Status(200).JSON(responseEstadosOrdenServicio)
 }
@@ -95,25 +95,25 @@ func GetEstadoOrdenServicio(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var empresa models.Empresa
+	var empresa models.Empresa
 	database.DB.First(&empresa, estadoOrdenServicio.EmpresaRefer)
-  
+
 	var ciudad models.Ciudad
 	database.DB.First(&ciudad, empresa.CiudadRefer)
 
 	var provincia models.Provincia
 	database.DB.First(&provincia, ciudad.ProvinciaRefer)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+	responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
 
 	return c.Status(200).JSON(responseEstadoOrdenServicio)
 }
 
 func FindEstadoOrdenServicioByEmpresa(empresa_id int, estadoOrdenServicio *models.EstadoOrdenServicio) error {
-  database.DB.Find(&estadoOrdenServicio, "empresa_refer = ?", empresa_id)
+	database.DB.Find(&estadoOrdenServicio, "empresa_refer = ?", empresa_id)
 	if estadoOrdenServicio.EmpresaRefer == 0 {
 		return errors.New("Empresa does not exist")
 	}
@@ -123,39 +123,39 @@ func FindEstadoOrdenServicioByEmpresa(empresa_id int, estadoOrdenServicio *model
 func GetEstadoOrdenServicioByEmpresa(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 
-  estadosOrdenServicio := []models.EstadoOrdenServicio{}
+	estadosOrdenServicio := []models.EstadoOrdenServicio{}
 	database.DB.Find(&estadosOrdenServicio)
 	responseEstadosOrdenServicio := []EstadoOrdenServicio{}
 
 	for _, estadoOrdenServicio := range estadosOrdenServicio {
 
-    if err != nil {
-      return c.Status(400).JSON("Please ensure that :id is an integer")
-    }
+		if err != nil {
+			return c.Status(400).JSON("Please ensure that :id is an integer")
+		}
 
-    if err := FindEstadoOrdenServicioByEmpresa(id, &estadoOrdenServicio); err != nil {
-      return c.Status(400).JSON(err.Error())
-    }
+		if err := FindEstadoOrdenServicioByEmpresa(id, &estadoOrdenServicio); err != nil {
+			return c.Status(400).JSON(err.Error())
+		}
 
-    var empresa models.Empresa
+		var empresa models.Empresa
 		database.DB.Find(&empresa, "id = ?", estadoOrdenServicio.EmpresaRefer)
 
-    var ciudad models.Ciudad
+		var ciudad models.Ciudad
 		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
 
 		var provincia models.Provincia
 		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
 
-    responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
+		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-    responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
-    responseEstadosOrdenServicio = append(responseEstadosOrdenServicio, responseEstadoOrdenServicio)
+		responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+		responseEstadosOrdenServicio = append(responseEstadosOrdenServicio, responseEstadoOrdenServicio)
 	}
- 	return c.Status(200).JSON(responseEstadosOrdenServicio)
+	return c.Status(200).JSON(responseEstadosOrdenServicio)
 }
 
 func UpdateEstadoOrdenServicio(c *fiber.Ctx) error {
-  id, err := c.ParamsInt("id")
+	id, err := c.ParamsInt("id")
 
 	var estado models.EstadoOrdenServicio
 
@@ -163,15 +163,15 @@ func UpdateEstadoOrdenServicio(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-  if err := FindEstadoOrdenServicio(id, &estado); err != nil {
+	if err := FindEstadoOrdenServicio(id, &estado); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  type UpdateEmpresa struct {
-    State           string `json:"state"`
-    Color           string `json:"color"`
-    EmpresaRefer    int `json:"empresa_id"`
-  }
+	type UpdateEmpresa struct {
+		State        string `json:"state"`
+		Color        string `json:"color"`
+		EmpresaRefer int    `json:"empresa_id"`
+	}
 
 	var updateData UpdateEmpresa
 
@@ -179,28 +179,28 @@ func UpdateEstadoOrdenServicio(c *fiber.Ctx) error {
 		return c.Status(500).JSON(err.Error())
 	}
 
-  estado.State = updateData.State
-  estado.Color = updateData.Color
-  estado.EmpresaRefer = updateData.EmpresaRefer
+	estado.State = updateData.State
+	estado.Color = updateData.Color
+	estado.EmpresaRefer = updateData.EmpresaRefer
 
 	var empresa models.Empresa
 	if err := findEmpresa(estado.EmpresaRefer, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var ciudad models.Ciudad
+	var ciudad models.Ciudad
 	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	database.DB.Save(&estado)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 	responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estado, responseEmpresa)

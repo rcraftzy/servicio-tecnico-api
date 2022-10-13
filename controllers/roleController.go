@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,8 +9,8 @@ import (
 )
 
 type Role struct {
-  ID           int `json:"id"`
-  Nombre       string `json:"nombre"`
+	ID     int    `json:"id"`
+	Nombre string `json:"nombre"`
 }
 
 func CreateResponseRole(roleModel models.Role) Role {
@@ -83,7 +83,7 @@ func UpdateRole(c *fiber.Ctx) error {
 	}
 
 	type UpdateRole struct {
-		Nombre         string `json:"nombre"`
+		Nombre string `json:"nombre"`
 	}
 
 	var updateData UpdateRole

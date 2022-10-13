@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,19 +9,19 @@ import (
 )
 
 type Cliente struct {
-  ID           int `json:"id" gorm:"primaryKey"`
-  Nombres       string `json:"nombres"`
-  Apellidos       string `json:"apellidos"`
-  Dni       string `json:"dni"`
-  Direccion    string   `json:"direccion"`
-  Telefono    string   `json:"telefono"`
-  Celular    string   `json:"celular"`
-  Email    string   `json:"email"`
-  Estado    bool   `json:"estado"`
+	ID        int    `json:"id" gorm:"primaryKey"`
+	Nombres   string `json:"nombres"`
+	Apellidos string `json:"apellidos"`
+	Dni       string `json:"dni"`
+	Direccion string `json:"direccion"`
+	Telefono  string `json:"telefono"`
+	Celular   string `json:"celular"`
+	Email     string `json:"email"`
+	Estado    bool   `json:"estado"`
 }
 
 func CreateResponseCliente(clienteModel models.Cliente) Cliente {
-  return Cliente{ID: clienteModel.ID, Nombres: clienteModel.Nombres, Apellidos: clienteModel.Apellidos, Dni: clienteModel.Dni, Direccion: clienteModel.Direccion, Telefono: clienteModel.Telefono, Celular: clienteModel.Celular, Email: clienteModel.Email, Estado: clienteModel.Estado}
+	return Cliente{ID: clienteModel.ID, Nombres: clienteModel.Nombres, Apellidos: clienteModel.Apellidos, Dni: clienteModel.Dni, Direccion: clienteModel.Direccion, Telefono: clienteModel.Telefono, Celular: clienteModel.Celular, Email: clienteModel.Email, Estado: clienteModel.Estado}
 }
 
 func CreateCliente(c *fiber.Ctx) error {
@@ -89,14 +89,14 @@ func UpdateCliente(c *fiber.Ctx) error {
 	}
 
 	type UpdateCliente struct {
-		Nombres         string `json:"nombres"`
-    Apellidos       string `json:"apellidos"`
-    Dni       string `json:"dni"`
-    Direccion    string   `json:"direccion"`
-    Telefono    string   `json:"telefono"`
-    Celular    string   `json:"celular"`
-    Email    string   `json:"email"`
-    Estado    bool   `json:"estado"`
+		Nombres   string `json:"nombres"`
+		Apellidos string `json:"apellidos"`
+		Dni       string `json:"dni"`
+		Direccion string `json:"direccion"`
+		Telefono  string `json:"telefono"`
+		Celular   string `json:"celular"`
+		Email     string `json:"email"`
+		Estado    bool   `json:"estado"`
 	}
 
 	var updateData UpdateCliente

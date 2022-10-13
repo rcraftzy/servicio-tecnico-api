@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,20 +9,20 @@ import (
 )
 
 type Producto struct {
-  ID           int `json:"id"`
-  Codigo       string `json:"codigo"`
-  Nombre       string `json:"nombre"`
-  PrecioVenta       float64 `json:"precioVenta"`
-  StockMin       float64 `json:"stockMin"`
-  StockMax       float64 `json:"stockMax"`
-  Stock       float64 `json:"stock"`
-  ControlaStock bool `json:"controlaStock"`
-  AplicaIVA bool `json:"aplicaIva"`
-  Empresa Empresa `json:"empresa"`
+	ID            int     `json:"id"`
+	Codigo        string  `json:"codigo"`
+	Nombre        string  `json:"nombre"`
+	PrecioVenta   float64 `json:"precioVenta"`
+	StockMin      float64 `json:"stockMin"`
+	StockMax      float64 `json:"stockMax"`
+	Stock         float64 `json:"stock"`
+	ControlaStock bool    `json:"controlaStock"`
+	AplicaIVA     bool    `json:"aplicaIva"`
+	Empresa       Empresa `json:"empresa"`
 }
 
 func CreateResponseProducto(producto models.Producto, empresa Empresa) Producto {
-  return Producto {ID: producto.ID ,Codigo: producto.Codigo ,Nombre: producto.Nombre, PrecioVenta: producto.PrecioVenta, StockMin: producto.StockMin, StockMax: producto.StockMax, Stock: producto.Stock, ControlaStock: producto.ControlaStock, AplicaIVA: producto.AplicaIVA, Empresa: empresa}
+	return Producto{ID: producto.ID, Codigo: producto.Codigo, Nombre: producto.Nombre, PrecioVenta: producto.PrecioVenta, StockMin: producto.StockMin, StockMax: producto.StockMax, Stock: producto.Stock, ControlaStock: producto.ControlaStock, AplicaIVA: producto.AplicaIVA, Empresa: empresa}
 }
 
 func CreateProducto(c *fiber.Ctx) error {
@@ -32,27 +32,27 @@ func CreateProducto(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var empresa models.Empresa
+	var empresa models.Empresa
 	if err := findEmpresa(producto.EmpresaRefer, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var ciudad models.Ciudad
+	var ciudad models.Ciudad
 	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	database.DB.Create(&producto)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
-  responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+	responseProducto := CreateResponseProducto(producto, responseEmpresa)
 
 	return c.Status(200).JSON(responseProducto)
 }
@@ -64,19 +64,19 @@ func GetProductos(c *fiber.Ctx) error {
 
 	for _, producto := range productos {
 
-    var empresa models.Empresa
+		var empresa models.Empresa
 		database.DB.Find(&empresa, "id = ?", producto.EmpresaRefer)
 
-    var ciudad models.Ciudad
+		var ciudad models.Ciudad
 		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
 
 		var provincia models.Provincia
 		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
 
-    responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
+		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
 		responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-    responseProducto := CreateResponseProducto(producto, responseEmpresa)
-    responseProductos = append(responseProductos, responseProducto)
+		responseProducto := CreateResponseProducto(producto, responseEmpresa)
+		responseProductos = append(responseProductos, responseProducto)
 	}
 	return c.Status(200).JSON(responseProductos)
 }
@@ -101,19 +101,19 @@ func GetProducto(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var empresa models.Empresa
+	var empresa models.Empresa
 	database.DB.First(&empresa, producto.EmpresaRefer)
-  
+
 	var ciudad models.Ciudad
 	database.DB.First(&ciudad, empresa.CiudadRefer)
 
 	var provincia models.Provincia
 	database.DB.First(&provincia, ciudad.ProvinciaRefer)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+	responseProducto := CreateResponseProducto(producto, responseEmpresa)
 
 	return c.Status(200).JSON(responseProducto)
 }
@@ -131,17 +131,17 @@ func UpdateProducto(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  type UpdateProducto struct {
-    Codigo       string `json:"codigo"`
-    Nombre       string `json:"nombre"`
-    PrecioVenta       float64 `json:"precioVenta"`
-    StockMin       float64 `json:"stockMin"`
-    StockMax       float64 `json:"stockMax"`
-    Stock       float64 `json:"stock"`
-    ControlaStock bool `json:"controlaStock"`
-    AplicaIVA bool `json:"aplicaIva"`
-    EmpresaRefer int `json:"empresa_id"`
-  }
+	type UpdateProducto struct {
+		Codigo        string  `json:"codigo"`
+		Nombre        string  `json:"nombre"`
+		PrecioVenta   float64 `json:"precioVenta"`
+		StockMin      float64 `json:"stockMin"`
+		StockMax      float64 `json:"stockMax"`
+		Stock         float64 `json:"stock"`
+		ControlaStock bool    `json:"controlaStock"`
+		AplicaIVA     bool    `json:"aplicaIva"`
+		EmpresaRefer  int     `json:"empresa_id"`
+	}
 
 	var updateData UpdateProducto
 
@@ -159,25 +159,25 @@ func UpdateProducto(c *fiber.Ctx) error {
 	producto.AplicaIVA = updateData.AplicaIVA
 	producto.EmpresaRefer = updateData.EmpresaRefer
 
-  var empresa models.Empresa
+	var empresa models.Empresa
 	if err := findEmpresa(producto.EmpresaRefer, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var ciudad models.Ciudad
+	var ciudad models.Ciudad
 	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 	database.DB.Save(&producto)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
-  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+	responseProducto := CreateResponseProducto(producto, responseEmpresa)
 	return c.Status(200).JSON(responseProducto)
 }

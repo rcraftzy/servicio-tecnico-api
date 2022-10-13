@@ -249,3 +249,85 @@ func GetDetalleOrdenServicioByOrder(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(responseDetalleOrdenesServicio)
 }
+
+
+func UpdatetDetalle (c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	var detalle models.DetalleOrdenServicio
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	if err := FindDetalleOrdenServicio(id, &detalle); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+  type UpdateDetalleOrdenServicio struct {
+    OrdenServicioRefer int `json:"orden_servicio_id"`
+    Cantidad float64 `json:"cantidad"`
+    ProductoRefer int `json:"producto_id"`
+    Descripcion       string `json:"descripcion"`
+    PrecioUnitario       float64 `json:"precio_unitario"`
+    Descuento    float64   `json:"descuento"`
+    PorcentajeIVA    float64   `json:"porcentaje_IVA"`
+    ValorIVA    float64   `json:"valor_IVA"`
+    Total    float64   `json:"total"`
+    EstadoOrdenServicioRefer int `json:"estado_orden_servicio_id"`
+  }
+
+	var updateData UpdateDetalleOrdenServicio
+
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(500).JSON(err.Error())
+	}
+
+  detalle.OrdenServicioRefer = updateData.OrdenServicioRefer
+  detalle.Cantidad = updateData.Cantidad
+  detalle.ProductoRefer = updateData.ProductoRefer
+  detalle.Descripcion = updateData.Descripcion
+  detalle.PrecioUnitario = updateData.PrecioUnitario
+  detalle.Descuento = updateData.Descuento
+  detalle.PorcentajeIVA = updateData.PorcentajeIVA
+  detalle.ValorIVA = updateData.ValorIVA
+  detalle.Total = updateData.Total
+  detalle.EstadoOrdenServicioRefer = updateData.EstadoOrdenServicioRefer
+
+  var ordenServicio models.OrdenServicio
+  database.DB.First(&ordenServicio, detalle.OrdenServicio)
+
+	var empresa models.Empresa
+	database.DB.First(&empresa, ordenServicio.EmpresaRefer)
+  
+	var ciudad models.Ciudad
+	database.DB.First(&ciudad, empresa.CiudadRefer)
+
+	var provincia models.Provincia
+	database.DB.First(&provincia, ciudad.ProvinciaRefer)
+
+  var tecnico models.Tecnico
+	database.DB.First(&tecnico, ordenServicio.TecnicoRefer)
+
+  var cliente models.Cliente
+	database.DB.First(&cliente, ordenServicio.ClienteRefer)
+
+  var producto models.Producto
+	database.DB.First(&producto, detalle.ProductoRefer)
+
+  var estadoOrdenServicio models.EstadoOrdenServicio
+  database.DB.First(&estadoOrdenServicio, detalle.EstadoOrdenServicioRefer)
+
+  database.DB.Save(&detalle)
+ 
+	responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+  responseTecnico := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+  responseCliente := CreateResponseCliente(cliente)
+  responseEstadoOrdenServicio := CreateResponseEstadoOrdenServicio(estadoOrdenServicio, responseEmpresa)
+  responseProducto := CreateResponseProducto(producto, responseEmpresa)
+  responseOrdenServicio := CreateResponseOrdenServicio(ordenServicio, responseEmpresa, responseEstadoOrdenServicio, responseTecnico, responseCliente)
+  responseDetalleOrdenServicio := CreateResponseDetalleOrdenServicio(detalle, responseOrdenServicio, responseProducto, responseEstadoOrdenServicio)
+
+	return c.Status(200).JSON(responseDetalleOrdenServicio)
+}

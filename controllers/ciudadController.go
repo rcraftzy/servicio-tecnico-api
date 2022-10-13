@@ -9,9 +9,9 @@ import (
 )
 
 type Ciudad struct {
-  ID           int `json:"id"`
-  Nombre       string `json:"nombre"`
-  Provincia    Provincia `json:"provincia"`
+	ID        int       `json:"id"`
+	Nombre    string    `json:"nombre"`
+	Provincia Provincia `json:"provincia"`
 }
 
 func CreateResponseCiudad(ciudad models.Ciudad, provincia Provincia) Ciudad {
@@ -97,7 +97,7 @@ func UpdateCiudad(c *fiber.Ctx) error {
 
 	type UpdateCiudad struct {
 		Nombre         string `json:"nombre"`
-    ProvinciaRefer int      `json:"provincia_id"`
+		ProvinciaRefer int    `json:"provincia_id"`
 	}
 
 	var updateData UpdateCiudad
@@ -107,16 +107,16 @@ func UpdateCiudad(c *fiber.Ctx) error {
 	}
 
 	ciudad.Nombre = updateData.Nombre
-	ciudad.ProvinciaRefer = updateData.ProvinciaRefer 
+	ciudad.ProvinciaRefer = updateData.ProvinciaRefer
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	database.DB.Save(&ciudad)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	return c.Status(200).JSON(responseCiudad)
 }

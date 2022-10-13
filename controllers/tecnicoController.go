@@ -116,3 +116,60 @@ func GetTecnico(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(responseTecnico)
 }
+
+func UpdateTecnico(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+
+	var tecnico models.Tecnico
+
+	if err != nil {
+		return c.Status(400).JSON("Please ensure that :id is an integer")
+	}
+
+	if err := FindTecnico(id, &tecnico); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+  type UpdateTecnico struct {
+    Cedula       string `json:"cedula"`
+    Nombre       string `json:"nombre"`
+    Apellido       string `json:"apellido"`
+    Email       string `json:"email"`
+    Telefono       string `json:"telefono"`
+    Direccion       string `json:"direccion"`
+    CiudadRefer      int `json:"ciudad_id"`
+    EmpresaRefer int `json:"empresa_id"`
+  }
+
+	var updateData UpdateTecnico
+
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(500).JSON(err.Error())
+	}
+
+	tecnico.Cedula = updateData.Cedula
+	tecnico.Nombre = updateData.Nombre
+	tecnico.Apellido = updateData.Apellido
+	tecnico.Email = updateData.Email
+	tecnico.Telefono = updateData.Telefono
+  tecnico.Direccion = updateData.Direccion
+  tecnico.CiudadRefer = updateData.CiudadRefer
+  tecnico.EmpresaRefer = updateData.EmpresaRefer
+
+	database.DB.Save(&tecnico)
+  
+	var empresa models.Empresa
+	database.DB.First(&empresa, tecnico.EmpresaRefer)
+  
+	var ciudad models.Ciudad
+	database.DB.First(&ciudad, empresa.CiudadRefer)
+
+	var provincia models.Provincia
+	database.DB.First(&provincia, ciudad.ProvinciaRefer)
+
+	responseProvincia := CreateResponseProvincia(provincia)
+	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
+	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
+	responseCliente := CreateResponseTecnico(tecnico, responseCiudad, responseEmpresa)
+	return c.Status(200).JSON(responseCliente)
+}

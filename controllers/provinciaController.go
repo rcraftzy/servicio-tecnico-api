@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,8 +9,8 @@ import (
 )
 
 type Provincia struct {
-  ID           int `json:"id"`
-  Nombre       string `json:"nombre"`
+	ID     int    `json:"id"`
+	Nombre string `json:"nombre"`
 }
 
 func CreateResponseProvincia(provinciaModel models.Provincia) Provincia {
@@ -82,7 +82,7 @@ func UpdateProvincia(c *fiber.Ctx) error {
 	}
 
 	type UpdateProvincia struct {
-		Nombre         string `json:"nombre"`
+		Nombre string `json:"nombre"`
 	}
 
 	var updateData UpdateProvincia

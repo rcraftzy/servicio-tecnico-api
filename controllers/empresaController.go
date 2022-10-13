@@ -9,18 +9,18 @@ import (
 )
 
 type Empresa struct {
-  ID           int `json:"id"`
-  Ruc          string `json:"ruc"`
-  Nombre       string `json:"nombre"`
-  Direccion    string `json:"direccion"`
-  Ciudad      Ciudad `json:"ciudad"`
-  Telefono   string `json:"telefono"`
-  Email   string `json:"email"`
-  PorcentajeIVA   float64 `json:"porcentajeIVA"`
+	ID            int     `json:"id"`
+	Ruc           string  `json:"ruc"`
+	Nombre        string  `json:"nombre"`
+	Direccion     string  `json:"direccion"`
+	Ciudad        Ciudad  `json:"ciudad"`
+	Telefono      string  `json:"telefono"`
+	Email         string  `json:"email"`
+	PorcentajeIVA float64 `json:"porcentajeIVA"`
 }
 
 func CreateResponseEmpresa(empresa models.Empresa, ciudad Ciudad) Empresa {
-  return Empresa {ID: empresa.ID, Ruc: empresa.Ruc, Nombre: empresa.Nombre, Direccion: empresa.Direccion, Ciudad: ciudad, Telefono: empresa.Telefono, Email: empresa.Email, PorcentajeIVA: empresa.PorcentajeIVA}
+	return Empresa{ID: empresa.ID, Ruc: empresa.Ruc, Nombre: empresa.Nombre, Direccion: empresa.Direccion, Ciudad: ciudad, Telefono: empresa.Telefono, Email: empresa.Email, PorcentajeIVA: empresa.PorcentajeIVA}
 }
 
 func CreateEmpresa(c *fiber.Ctx) error {
@@ -58,7 +58,7 @@ func GetEmpresas(c *fiber.Ctx) error {
 		var ciudad models.Ciudad
 		database.DB.Find(&ciudad, "id = ?", empresa.CiudadRefer)
 
-    var provincia models.Provincia
+		var provincia models.Provincia
 		database.DB.Find(&provincia, "id = ?", ciudad.ProvinciaRefer)
 
 		responseCiudad := CreateResponseCiudad(ciudad, CreateResponseProvincia(provincia))
@@ -94,7 +94,7 @@ func GetEmpresa(c *fiber.Ctx) error {
 	var provincia models.Provincia
 	database.DB.First(&provincia, ciudad.ProvinciaRefer)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 
@@ -110,19 +110,19 @@ func UpdateEmpresa(c *fiber.Ctx) error {
 		return c.Status(400).JSON("Please ensure that :id is an integer")
 	}
 
-  if err := findEmpresa(id, &empresa); err != nil {
+	if err := findEmpresa(id, &empresa); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  type UpdateEmpresa struct {
-    Ruc          string `json:"ruc"`
-    Nombre       string `json:"nombre"`
-    Direccion    string `json:"direccion"`
-    CiudadRefer    int   `json:"ciudad_id"`
-    Telefono   string `json:"telefono"`
-    Email   string `json:"email"`
-    PorcentajeIVA   float64 `json:"porcentajeIVA"`
-  }
+	type UpdateEmpresa struct {
+		Ruc           string  `json:"ruc"`
+		Nombre        string  `json:"nombre"`
+		Direccion     string  `json:"direccion"`
+		CiudadRefer   int     `json:"ciudad_id"`
+		Telefono      string  `json:"telefono"`
+		Email         string  `json:"email"`
+		PorcentajeIVA float64 `json:"porcentajeIVA"`
+	}
 
 	var updateData UpdateEmpresa
 
@@ -130,27 +130,27 @@ func UpdateEmpresa(c *fiber.Ctx) error {
 		return c.Status(500).JSON(err.Error())
 	}
 
-  empresa.Ruc = updateData.Ruc
-  empresa.Nombre = updateData.Nombre
-  empresa.Direccion = updateData.Direccion
-  empresa.CiudadRefer = updateData.CiudadRefer
-  empresa.Telefono = updateData.Telefono
-  empresa.Email = updateData.Email
-  empresa.PorcentajeIVA = updateData.PorcentajeIVA
+	empresa.Ruc = updateData.Ruc
+	empresa.Nombre = updateData.Nombre
+	empresa.Direccion = updateData.Direccion
+	empresa.CiudadRefer = updateData.CiudadRefer
+	empresa.Telefono = updateData.Telefono
+	empresa.Email = updateData.Email
+	empresa.PorcentajeIVA = updateData.PorcentajeIVA
 
-  var ciudad models.Ciudad
+	var ciudad models.Ciudad
 	if err := FindCiudad(empresa.CiudadRefer, &ciudad); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  var provincia models.Provincia
+	var provincia models.Provincia
 	if err := findProvincia(ciudad.ProvinciaRefer, &provincia); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
 
 	database.DB.Save(&empresa)
 
-  responseProvincia := CreateResponseProvincia(provincia)
+	responseProvincia := CreateResponseProvincia(provincia)
 	responseCiudad := CreateResponseCiudad(ciudad, responseProvincia)
 	responseEmpresa := CreateResponseEmpresa(empresa, responseCiudad)
 

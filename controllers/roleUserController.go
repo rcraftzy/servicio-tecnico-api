@@ -1,4 +1,4 @@
-package controllers 
+package controllers
 
 import (
 	"errors"
@@ -9,13 +9,13 @@ import (
 )
 
 type RoleUser struct {
-  ID           int `json:"id"`
-  User      UserResponse      `json:"user"`
-  Role  Role       `json:"role"`
+	ID   int          `json:"id"`
+	User UserResponse `json:"user"`
+	Role Role         `json:"role"`
 }
 
 func CreateResponseRoleUser(roleUserModel models.RoleUser, user UserResponse, role Role) RoleUser {
-  return RoleUser{ID: roleUserModel.ID, User: user, Role: role}
+	return RoleUser{ID: roleUserModel.ID, User: user, Role: role}
 }
 
 func CreateRoleUser(c *fiber.Ctx) error {
@@ -24,21 +24,21 @@ func CreateRoleUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&roleUser); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
-  
-  var user models.User
+
+	var user models.User
 	if err := FindUser(roleUser.UserRefer, &user); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
-   
-  var role models.Role
-  if err := FindRole(roleUser.RoleRefer, &role); err != nil {
+
+	var role models.Role
+	if err := FindRole(roleUser.RoleRefer, &role); err != nil {
 		return c.Status(400).JSON(err.Error())
-  }
+	}
 
 	database.DB.Create(&roleUser)
 
-  responseUser := CreateResponseUser(user)
-  responseRole := CreateResponseRole(role)
+	responseUser := CreateResponseUser(user)
+	responseRole := CreateResponseRole(role)
 	responseRoleUser := CreateResponseRoleUser(roleUser, responseUser, responseRole)
 
 	return c.Status(200).JSON(responseRoleUser)
@@ -50,14 +50,14 @@ func GetRolesUser(c *fiber.Ctx) error {
 	responseRolesUser := []RoleUser{}
 	for _, roleUser := range rolesUser {
 
-    var user models.User
+		var user models.User
 		database.DB.Find(&user, "id = ?", roleUser.UserRefer)
 
-    var role models.Role
+		var role models.Role
 		database.DB.Find(&role, "id = ?", roleUser.RoleRefer)
 
-    responseUser := CreateResponseUser(user)
-    responseRole := CreateResponseRole(role)
+		responseUser := CreateResponseUser(user)
+		responseRole := CreateResponseRole(role)
 		responseRoleUser := CreateResponseRoleUser(roleUser, responseUser, responseRole)
 		responseRolesUser = append(responseRolesUser, responseRoleUser)
 	}
@@ -88,8 +88,8 @@ func GetRoleUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err.Error())
 	}
 
-  responseUser := CreateResponseUser(user)
-  responseRole := CreateResponseRole(role)
+	responseUser := CreateResponseUser(user)
+	responseRole := CreateResponseRole(role)
 	responseRoleUser := CreateResponseRoleUser(roleUser, responseUser, responseRole)
 
 	return c.Status(200).JSON(responseRoleUser)
@@ -111,8 +111,8 @@ func UpdateRoleUser(c *fiber.Ctx) error {
 	}
 
 	type UpdateRoleUser struct {
-		UserRefer         int `json:"user_id"`
-		RoleRefer         int `json:"role_id"`
+		UserRefer int `json:"user_id"`
+		RoleRefer int `json:"role_id"`
 	}
 
 	var updateData UpdateRoleUser
@@ -126,8 +126,8 @@ func UpdateRoleUser(c *fiber.Ctx) error {
 
 	database.DB.Save(&roleUser)
 
-  responseUser := CreateResponseUser(user)
-  responseRole := CreateResponseRole(role)
+	responseUser := CreateResponseUser(user)
+	responseRole := CreateResponseRole(role)
 	responseRoleUser := CreateResponseRoleUser(roleUser, responseUser, responseRole)
 	return c.Status(200).JSON(responseRoleUser)
 }

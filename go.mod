@@ -1,4 +1,4 @@
-module github.com/roberto-carlos-tg/go-auht
+module github.com/roberto-carlos-tg/servicio-tecnico-api
 
 go 1.19
 

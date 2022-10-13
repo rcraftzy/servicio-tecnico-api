@@ -4,8 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
-	"github.com/roberto-carlos-tg/go-auht/database"
-	"github.com/roberto-carlos-tg/go-auht/routes"
+	"github.com/roberto-carlos-tg/servicio-tecnico-api/database"
+	"github.com/roberto-carlos-tg/servicio-tecnico-api/routes"
 	"log"
 )
 
